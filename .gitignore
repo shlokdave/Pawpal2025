@@ -39,3 +39,38 @@ yarn-error.*
 
 expo-env.d.ts
 # @end expo-cli
+
+backend/env/
+
+# Ignore Python virtual environments
+env/
+.venv/
+venv/
+
+# Ignore AI model files
+*.h5
+*.pkl
+*.pt
+*.tflite
+*.joblib
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore logs and system files
+*.log
+.DS_Store
+
+# Optional: ignore Jupyter notebooks if you're not sharing them
+*.ipynb
+
+# Ignore dataset folder
+dataset/
+*.tar
+*.zip
+*.h5
+*.hdf5
+*.jpg
+
+backend/dataset/**/**/*.jpg
