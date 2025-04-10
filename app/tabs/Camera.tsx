@@ -21,15 +21,16 @@ export default function CameraScreen() {
         );
     }
 
-    // ✅ Dynamically load expo-camera only on native
     useEffect(() => {
         (async () => {
             const cameraModule = await import('expo-camera');
-            setCameraComponent(() => cameraModule.Camera);
-            const { status } = await cameraModule.Camera.requestCameraPermissionsAsync();
+            const { Camera } = cameraModule;
+            setCameraComponent(() => Camera);
+            const { status } = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === 'granted');
         })();
     }, []);
+
 
     const takePicture = async () => {
         if (cameraRef.current) {
