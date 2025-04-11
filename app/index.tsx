@@ -1,4 +1,3 @@
-// app/index.tsx
 import { useEffect } from 'react';
 import { useRouter, useRootNavigationState } from 'expo-router';
 
