@@ -1,46 +1,49 @@
-// app/login.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { firebaseApp } from '../config/firebaseConfig';
 
-export default function LoginScreen(): JSX.Element {
+export default function SignUpScreen(): JSX.Element {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [secureText, setSecureText] = useState(true);
     const router = useRouter();
     const auth = getAuth(firebaseApp);
 
-    const handleLogin = async () => {
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    const handleSignUp = async () => {
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Passwords do not match.');
+            return;
+        }
+
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            router.replace('/tabs/Home'); // ✅ Success: Navigate to app
+            await createUserWithEmailAndPassword(auth, email, password);
+            Alert.alert('Success', 'Account created successfully!');
+            router.replace('/tabs/Home');
         } catch (error: any) {
-            let message = 'Login failed. Please try again.';
-
-            if (error.code === 'auth/user-not-found') {
-                message = 'No user found with this email.';
-            } else if (error.code === 'auth/wrong-password') {
-                message = 'Incorrect password.';
+            let message = 'Sign-up failed. Please try again.';
+            if (error.code === 'auth/email-already-in-use') {
+                message = 'That email is already in use.';
             } else if (error.code === 'auth/invalid-email') {
-                message = 'Invalid email format.';
+                message = 'Invalid email address.';
+            } else if (error.code === 'auth/weak-password') {
+                message = 'Password should be at least 6 characters.';
             }
-
-            Alert.alert('Login Failed', message);
+            Alert.alert('Error', message);
             setEmail('');
             setPassword('');
+            setConfirmPassword('');
         }
     };
-
 
     return (
         <View style={styles.container}>
             <Text style={styles.logo}>🐾 PawPal</Text>
-            <Text style={styles.title}>Welcome to PawPal</Text>
-            <Text style={styles.subtitle}>Login</Text>
-            <Text style={styles.helper}>Please sign in to continue</Text>
+            <Text style={styles.title}>Create an Account</Text>
+            <Text style={styles.helper}>Join the PawPal family!</Text>
 
             <View style={styles.inputContainer}>
                 <Ionicons name="mail-outline" size={20} color="#555" style={styles.icon} />
@@ -60,26 +63,38 @@ export default function LoginScreen(): JSX.Element {
                     placeholder="Password"
                     style={styles.input}
                     placeholderTextColor="#aaa"
-                    secureTextEntry={secureText}
+                    secureTextEntry
                     value={password}
                     onChangeText={setPassword}
                 />
-                <TouchableOpacity onPress={() => setSecureText(!secureText)}>
-                    <Text style={styles.showButton}>{secureText ? 'Show' : 'Hide'}</Text>
-                </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-                <Text style={styles.loginButtonText}>Log In</Text>
+            <View style={styles.inputContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="#555" style={styles.icon} />
+                <TextInput
+                    placeholder="Confirm Password"
+                    style={styles.input}
+                    placeholderTextColor="#aaa"
+                    secureTextEntry
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                />
+            </View>
+
+
+            <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
+                <Text style={styles.loginButtonText}>Sign Up</Text>
             </TouchableOpacity>
 
-            <Text style={styles.signupLink} onPress={() => router.push('/signup')}>
-                Sign up
+            <Text style={styles.signupPrompt}>
+                Already have an account?{' '}
+                <Text style={styles.signupLink} onPress={() => router.replace('/login')}>
+                    Log in
+                </Text>
             </Text>
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     container: {
@@ -98,11 +113,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 10,
-    },
-    subtitle: {
-        fontSize: 20,
-        textAlign: 'center',
-        marginBottom: 5,
     },
     helper: {
         fontSize: 14,
@@ -124,10 +134,6 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 40,
         color: '#000',
-    },
-    showButton: {
-        color: '#007BFF',
-        paddingHorizontal: 8,
     },
     loginButton: {
         backgroundColor: '#007BFF',
