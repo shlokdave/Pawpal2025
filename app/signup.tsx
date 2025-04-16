@@ -22,7 +22,7 @@ export default function SignUpScreen(): JSX.Element {
         try {
             await createUserWithEmailAndPassword(auth, email, password);
             Alert.alert('Success', 'Account created successfully!');
-            router.replace('/tabs/Home');
+            router.replace('/createPet')
         } catch (error: any) {
             let message = 'Sign-up failed. Please try again.';
             if (error.code === 'auth/email-already-in-use') {
